@@ -57,7 +57,41 @@ class BFSAgent(Agent):
     # GetAction Function: Called with every frame
     def getAction(self, state):
         # TODO: write BFS Algorithm instead of returning Directions.STOP
-        return Directions.STOP
+        frontier = []
+        explored = []
+        depth = 0
+        # get next legal action from the root state
+        nextActions = state.getLegalPacmanActions()
+        depth += 1
+        # add those actions and their corresponding successor states to frontier
+        for action in nextActions:
+            nextState = state.generatePacmanSuccessor(action)
+            nextStateHeuristic = admissibleHeuristic(nextState)
+            frontier.append({'state': nextState,
+                             'depth': depth,
+                             'totalCost': nextStateHeuristic+depth,
+                             'rootAction': action})
+        while len(frontier) > 0:
+            currentNode = frontier.pop(0)
+            explored.append(currentNode)
+            legalActions = currentNode['state'].getLegalPacmanActions()
+            if len(legalActions) > 0:
+                depth = currentNode['depth'] + 1
+            for action in legalActions:
+                nextState = currentNode['state'].generatePacmanSuccessor(action)
+                if nextState == None:
+                    explored = sorted(explored, key=lambda exploredState:exploredState['totalCost'])
+                    return explored.pop(0)['rootAction']
+                elif nextState.isLose():
+                    continue
+                else:
+                    totalCost = depth + admissibleHeuristic(nextState)
+                    rootAction = currentNode['rootAction']
+                    frontier.append({'state': nextState,
+                                     'depth': depth,
+                                     'totalCost': totalCost,
+                                     'rootAction': rootAction})
+
 
 class DFSAgent(Agent):
     # Initialization Function: Called one time when the game starts
@@ -67,7 +101,40 @@ class DFSAgent(Agent):
     # GetAction Function: Called with every frame
     def getAction(self, state):
         # TODO: write DFS Algorithm instead of returning Directions.STOP
-        return Directions.STOP
+        frontier = []
+        explored = []
+        depth = 0
+        # get next legal action from the root state
+        nextActions = state.getLegalPacmanActions()
+        depth += 1
+        # add those actions and their corresponding successor states to frontier
+        for action in nextActions:
+            nextState = state.generatePacmanSuccessor(action)
+            nextStateHeuristic = admissibleHeuristic(nextState)
+            frontier.append({'state': nextState,
+                             'depth': depth,
+                             'totalCost': nextStateHeuristic + depth,
+                             'rootAction': action})
+        while len(frontier) > 0:
+            currentNode = frontier.pop(0)
+            explored.append(currentNode)
+            legalActions = currentNode['state'].getLegalPacmanActions()
+            if len(legalActions) > 0:
+                depth = currentNode['depth'] + 1
+            for action in legalActions:
+                nextState = currentNode['state'].generatePacmanSuccessor(action)
+                if nextState == None:
+                    explored = sorted(explored, key=lambda exploredState: exploredState['totalCost'])
+                    return explored.pop(0)['rootAction']
+                elif nextState.isLose():
+                    continue
+                else:
+                    totalCost = depth + admissibleHeuristic(nextState)
+                    rootAction = currentNode['rootAction']
+                    frontier.insert(0, {'state': nextState,
+                                        'depth': depth,
+                                        'totalCost': totalCost,
+                                        'rootAction': rootAction})
 
 class AStarAgent(Agent):
     # Initialization Function: Called one time when the game starts
@@ -90,7 +157,7 @@ class AStarAgent(Agent):
             frontier.append({'state': nextState,
                              'depth': depth,
                              'totalCost': nextStateHeuristic+depth,
-                             'rootAction':action})
+                             'rootAction': action})
         while len(frontier) > 0:
             frontier = sorted(frontier, key=lambda state: state['totalCost'])
             currentNode = frontier.pop(0)
@@ -109,4 +176,4 @@ class AStarAgent(Agent):
                     frontier.append({'state': nextState,
                                      'depth': depth,
                                      'totalCost': totalCost,
-                                     'rootAction':rootAction})
+                                     'rootAction': rootAction})
